@@ -1,16 +1,39 @@
-import { writable } from 'svelte/store';
-import { supabase } from '../utils/supabase';
+import { writable, type Writable } from 'svelte/store';
+import { supabase } from '$utils/supabase';
 import { browser } from '$app/environment';
 
+// Define types
+export interface UserProfile {
+    id: string;
+    username: string;
+    email: string;
+    created_at: string;
+}
+
+export interface AuthState {
+    user: {
+        id: string;
+        email?: string;
+        profile?: UserProfile;
+    } | null;
+    loading: boolean;
+    error: string | null;
+}
+
+export interface AuthResponse {
+    success: boolean;
+    error?: string;
+}
+
 // Initialize the auth store
-export const authStore = writable<{user: any, loading: boolean, error: any}>({
+export const authStore: Writable<AuthState> = writable({
     user: null,
     loading: true,
     error: null
 });
 
 // Initialize the auth state from Supabase session
-export async function initializeAuth() {
+export async function initializeAuth(): Promise<void> {
     if (!browser) return;
 
     authStore.update(state => ({ ...state, loading: true }));
@@ -56,7 +79,7 @@ export async function initializeAuth() {
 }
 
 // Sign up a new user
-export async function signUp(email: string, password: string, username: string) {
+export async function signUp(email: string, password: string, username: string): Promise<AuthResponse> {
     authStore.update(state => ({ ...state, loading: true, error: null }));
 
     try {
@@ -76,7 +99,7 @@ export async function signUp(email: string, password: string, username: string) 
                     id: authData.user.id,
                     username,
                     email,
-                    created_at: new Date()
+                    created_at: new Date().toISOString()
                 });
 
             if (profileError) throw profileError;
@@ -91,7 +114,7 @@ export async function signUp(email: string, password: string, username: string) 
 }
 
 // Sign in an existing user
-export async function signIn(email: string, password: string) {
+export async function signIn(email: string, password: string): Promise<AuthResponse> {
     authStore.update(state => ({ ...state, loading: true, error: null }));
 
     try {
@@ -111,7 +134,7 @@ export async function signIn(email: string, password: string) {
 }
 
 // Sign out
-export async function signOut() {
+export async function signOut(): Promise<AuthResponse> {
     const { error } = await supabase.auth.signOut();
 
     if (error) {

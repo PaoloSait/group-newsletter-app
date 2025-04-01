@@ -1,12 +1,9 @@
-<script>
+<script lang="ts">
   import { page } from '$app/stores';
-  import { authStore, signOut } from '../stores/auth'
-  import { onMount } from 'svelte';
+  import { authStore, signOut } from '$stores/auth';
   
   let isMenuOpen = $state(false);
-  let isLoggedIn = $state(false);
-
-//   let isLoggedIn = $derived(!!$authStore.user);
+  let isLoggedIn = $derived(!!$authStore.user);
 
   function toggleMenu() {
     isMenuOpen = !isMenuOpen;

@@ -1,13 +1,8 @@
 <script lang="ts">
   import '../app.css';
-  import Nav from '../lib/components/Nav.svelte';
-  import { initializeAuth, authStore } from '../lib/stores/auth';
+  import Nav from '$components/Nav.svelte';
+  import { initializeAuth, authStore } from '$stores/auth';
   import { onMount } from 'svelte';
-  interface Props {
-    children?: import('svelte').Snippet;
-  }
-
-  let { children }: Props = $props();
   
   onMount(() => {
     initializeAuth();
@@ -23,7 +18,7 @@
         <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     {:else}
-      {@render children?.()}
+      <slot />
     {/if}
   </main>
   

@@ -1,11 +1,9 @@
 <script lang="ts">
-  import { signUp, authStore } from '$stores/auth';
+  import { signIn, authStore } from '$stores/auth';
   import { goto } from '$app/navigation';
   
   let email = $state('');
   let password = $state('');
-  let username = $state('');
-  let confirmPassword = $state('');
   let loading = $state(false);
   let error = $state('');
   
@@ -18,34 +16,18 @@
   async function handleSubmit() {
     error = '';
     
-    // Form validation
-    if (!email || !password || !username || !confirmPassword) {
-      error = 'All fields are required';
-      return;
-    }
-    
-    if (password !== confirmPassword) {
-      error = 'Passwords do not match';
-      return;
-    }
-    
-    if (password.length < 6) {
-      error = 'Password must be at least 6 characters long';
-      return;
-    }
-    
-    if (username.length < 3) {
-      error = 'Username must be at least 3 characters long';
+    if (!email || !password) {
+      error = 'Email and password are required';
       return;
     }
     
     loading = true;
     
     try {
-      const { success, error: signUpError } = await signUp(email, password, username);
+      const { success, error: signInError } = await signIn(email, password);
       
       if (!success) {
-        error = signUpError || 'An error occurred during sign up';
+        error = signInError || 'Invalid email or password';
       }
       // Redirect will happen automatically due to the effect watching authStore
     } catch (err: any) {
@@ -57,19 +39,19 @@
 </script>
 
 <svelte:head>
-  <title>Sign Up - MonthlyMemos</title>
+  <title>Sign In - MonthlyMemos</title>
 </svelte:head>
 
 <div class="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
   <div class="max-w-md w-full space-y-8">
     <div>
       <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-        Create your account
+        Sign in to your account
       </h2>
       <p class="mt-2 text-center text-sm text-gray-600">
         Or
-        <a href="/signin" class="font-medium text-blue-600 hover:text-blue-500">
-          sign in if you already have an account
+        <a href="/signup" class="font-medium text-blue-600 hover:text-blue-500">
+          create a new account
         </a>
       </p>
     </div>
@@ -94,18 +76,6 @@
       
       <div class="rounded-md shadow-sm -space-y-px">
         <div>
-          <label for="username" class="sr-only">Username</label>
-          <input
-            id="username"
-            name="username"
-            type="text"
-            required
-            bind:value={username}
-            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-            placeholder="Username"
-          />
-        </div>
-        <div>
           <label for="email-address" class="sr-only">Email address</label>
           <input
             id="email-address"
@@ -114,7 +84,7 @@
             autocomplete="email"
             required
             bind:value={email}
-            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
             placeholder="Email address"
           />
         </div>
@@ -124,25 +94,32 @@
             id="password"
             name="password"
             type="password"
-            autocomplete="new-password"
+            autocomplete="current-password"
             required
             bind:value={password}
-            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
             placeholder="Password"
           />
         </div>
-        <div>
-          <label for="confirm-password" class="sr-only">Confirm Password</label>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
           <input
-            id="confirm-password"
-            name="confirm-password"
-            type="password"
-            autocomplete="new-password"
-            required
-            bind:value={confirmPassword}
-            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-            placeholder="Confirm Password"
+            id="remember-me"
+            name="remember-me"
+            type="checkbox"
+            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
           />
+          <label for="remember-me" class="ml-2 block text-sm text-gray-900">
+            Remember me
+          </label>
+        </div>
+
+        <div class="text-sm">
+          <a href="#" class="font-medium text-blue-600 hover:text-blue-500">
+            Forgot your password?
+          </a>
         </div>
       </div>
 
@@ -160,7 +137,7 @@
               </svg>
             </span>
           {/if}
-          Sign up
+          Sign in
         </button>
       </div>
     </form>
